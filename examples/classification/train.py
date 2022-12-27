@@ -122,10 +122,23 @@ def main(gpu, cfg, profile=False):
     # optionally resume from a checkpoint
     if cfg.pretrained_path is not None:
         if cfg.mode == 'resume':
-            resume_checkpoint(cfg, model, optimizer, scheduler,
-                              pretrained_path=cfg.pretrained_path)
-            macc, oa, accs, cm = validate_fn(model, val_loader, cfg)
-            print_cls_results(oa, macc, accs, cfg.start_epoch, cfg)
+            ckpt=cfg.pretrained_path
+            checkpoint = torch.load(ckpt, map_location='cpu')
+            model_dict = model.state_dict()
+            ckpt_state = checkpoint['model']
+            model_dict = model.state_dict()
+            temp_dict=OrderedDict()
+            for k,v in ckpt_state.items():
+                if k[:8]=='encoder.':
+                    if 'token' not in k:
+
+                        temp_dict[k]=v
+            ckpt_state=temp_dict
+            logging.info(ckpt_state.keys())
+            model.load_state_dict(ckpt_state,strict=False)
+            logging.info('load done 2')
+            
+            
         else:
             if cfg.mode == 'test':
                 # test mode
