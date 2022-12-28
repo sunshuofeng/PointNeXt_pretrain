@@ -38,12 +38,12 @@ if __name__ == "__main__":
     cfg.root_dir = os.path.join(cfg.root_dir, cfg.task_name)
     cfg.opts = '-'.join(opt_list)
 
-    if cfg.mode in ['resume', 'val', 'test']:
-        resume_exp_directory(cfg, pretrained_path=cfg.pretrained_path)
-        cfg.wandb.tags = [cfg.mode]
-    else:  # resume from the existing ckpt and reuse the folder.
-        generate_exp_directory(cfg, tags, additional_id=os.environ.get('MASTER_PORT', None))
-        cfg.wandb.tags = tags
+#     if cfg.mode in ['resume', 'val', 'test']:
+#         resume_exp_directory(cfg, pretrained_path=cfg.pretrained_path)
+#         cfg.wandb.tags = [cfg.mode]
+#     else:  # resume from the existing ckpt and reuse the folder.
+    generate_exp_directory(cfg, tags, additional_id=os.environ.get('MASTER_PORT', None))
+    cfg.wandb.tags = tags
     os.environ["JOB_LOG_DIR"] = cfg.log_dir
     cfg_path = os.path.join(cfg.run_dir, "cfg.yaml")
     with open(cfg_path, 'w') as f:
