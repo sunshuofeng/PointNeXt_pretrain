@@ -14,7 +14,19 @@ from openpoints.scheduler import build_scheduler_from_cfg
 from openpoints.models import build_model_from_cfg
 from openpoints.models.layers import furthest_point_sample, fps
 from collections import defaultdict,OrderedDict
-
+from timm.models.layers import DropPath, trunc_normal_
+def _init_weights(m):
+        if isinstance(m, nn.Linear):
+            trunc_normal_(m.weight, std=.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
+        elif isinstance(m, nn.Conv1d):
+            trunc_normal_(m.weight, std=.02)
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
 def get_features_by_keys(input_features_dim, data):
     if input_features_dim == 3:
         features = data['pos']
@@ -71,6 +83,9 @@ def main(gpu, cfg, profile=False):
         cfg.model.criterion_args = cfg.criterion_args
     model = build_model_from_cfg(cfg.model).to(cfg.rank)
     model_size = cal_model_parm_nums(model)
+    if cfg.init_weight:
+        model.apply(_init_weights)
+    
     logging.info(model)
     logging.info('Number of params: %.4f M' % (model_size / 1e6))
     # criterion = build_criterion_from_cfg(cfg.criterion_args).cuda()
