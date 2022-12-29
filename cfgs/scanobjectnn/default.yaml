@@ -28,6 +28,7 @@ batch_size: 32
 val_batch_size: 64 
 dataloader:
   num_workers: 6
+init_weight: True
 
 # ---------------------------------------------------------------------------- #
 # Training cfgs
